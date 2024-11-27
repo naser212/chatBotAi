@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export default function Front() {
     const navigate = useNavigate();
@@ -11,7 +12,17 @@ export default function Front() {
 
     return (
         <>
+         <motion.dev 
+
+        initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+        duration: 0.8,
+        delay: 0.5,
+        ease: [0, 0.71, 0.2, 1.01]}}
+        >
             <div className="flex flex-col md:text-center bg-purp md:mx-36 md:my-16 md:space-y-12 text-lato md:px-36 md:py-14 md:mt-44 text-white rounded-lg">
+
                 <h1 className="text-4xl font-extrabold tracking-widest">AI advisor</h1>
                 <p className="text-base font-semibold">Your personalized AI advisor for academic success. Get tailored course recommendations, career guidance, and instant support to enhance your educational journey. Start chatting now to receive expert advice whenever you need it.</p>
                 <button
@@ -36,7 +47,9 @@ export default function Front() {
                         </a>
                     ))}
                 </div>
+
             </div>
+            </motion.dev>
         </>
     );
 }
