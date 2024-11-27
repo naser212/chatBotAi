@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import send1 from './button.svg';
+import wait from "./sq.svg";
 
 const ChatInterface = () => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [visible, setVisible] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const chatBoxRef = useRef(null);
+  const textRef = useRef (null);
 
   const suggestions = [
     "What courses are required for my major?",
@@ -17,7 +23,7 @@ const ChatInterface = () => {
   // API handler to send a message to the server and receive a response
   const sendMessageToServer = async (message) => {
     try {
-      const response = await fetch("https://your-server-endpoint.com/api/chat", {
+      const response = await fetch("http://localhost:3000/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
@@ -37,16 +43,19 @@ const ChatInterface = () => {
 
   // Handle sending a message
   const handleSend = async () => {
-    if (input.trim()) {
-      // Add the user message
+    if (input.trim() && !loading) {
+      setLoading(true);
       setMessages((prev) => [...prev, { text: input, isServer: false }]);
       setInput("");
+      
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
 
       // Send the message to the server
       const serverResponse = await sendMessageToServer(input);
 
       // Add the server's response
       setMessages((prev) => [...prev, { text: serverResponse, isServer: true }]);
+      setLoading(false);
     }
   };
 
@@ -56,74 +65,120 @@ const ChatInterface = () => {
     setVisible(false);
   };
 
+  // Handle Enter key press for submitting
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && loading) {  // Block Enter key when loading
+      event.preventDefault();
+    }
+    if (event.key === 'Enter' && !event.shiftKey && !loading) {
+      event.preventDefault(); // Prevent default behavior of Enter key
+      handleSend();
+    }
+  };
+
+  // Handle clicking a suggestion
+  const handleSuggestionClick = (suggestion) => {
+    setInput(suggestion);
+    handleSend();
+    setVisible(false);
+  };
+
+  // Auto-scroll to the bottom of the chat box when messages change
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+      textRef.current.focus();
+      if (textRef.current){
+      textRef.current.style.height = "auto";}
+
+    }
+  }, [messages]); // Runs every time messages array changes
+
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-screen bg-gray-100 p-4">
-      <form
-        className="bg-gray-200 w-full max-w-6xl p-6 rounded-lg shadow-lg px-8"
-        onSubmit={handleSubmit}
-      >
-        {/* Header */}
-        <div className="text-center text-gray-600 mb-6">
-          <h1 className="text-lg font-semibold">
-            Hi! I'm here to help you. Select a topic below or type your question!
-          </h1>
-        </div>
-
-        {/* Suggestions */}
-        <div
-          className={`flex flex-wrap items-center gap-4 ${
-            !visible ? "hidden" : ""
-          } justify-items-center object-center p-10 mb-44`}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+        duration: 0.7,
+        delay: 0.5,
+        ease: [0, 0.71, 0.2, 1.01]
+      }}
+    >
+      <div className="flex flex-col items-center justify-center w-full min-h-screen bg-white p-4 overflow-auto">
+        <form
+          className="bg-ramd w-full max-w-6xl p-6 rounded-lg shadow-lg px-8 flex flex-col justify-between h-full min-h-96"
+          onSubmit={handleSubmit}
         >
-          {suggestions.map((suggestion, index) => (
-            <button
-              key={index}
-              className="bg-button text-white py-2 px-2 rounded-lg text-center w-fit grow"
-              onClick={() => {
-                setInput(suggestion);
-                handleSend();
-              }}
-            >
-              {suggestion}
-            </button>
-          ))}
-        </div>
+          {/* Header */}
+          <div className={`text-center text-dark mb-6 ${!visible ? "hidden" : null}`}>
+            <h1 className="text-lg font-semibold">
+              Hi! I'm here to help you. Select a topic below or type your question!
+            </h1>
+          </div>
 
-        {/* Messages */}
-        <div className="chat-box bg-gray-100 p-4 mb-4 rounded-lg h-80 overflow-y-auto">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`p-2 mb-2 rounded-md ${
-                message.isServer
-                  ? "bg-blue-100 text-blue-900"
-                  : "bg-gray-200 text-gray-900"
-              }`}
-            >
-              {message.text}
-            </div>
-          ))}
-        </div>
-
-        {/* Input */}
-        <div className="flex items-center bg-white px-2 rounded-3xl shadow-inner flex-nowrap">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message"
-            className="flex-1 px-2 text-gray-700 rounded-md focus:outline-none"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim()}
-            className="mx-1 bg-button text-white rounded-3xl ml-2 hover:opacity-70 transition-colors"
+          {/* Suggestions */}
+          <div
+            className={`flex flex-wrap items-center gap-4 ${!visible ? "hidden" : null} justify-items-center object-center p-10 mb-4`}
           >
-            <img className="size-12" src={send1} alt="Send" />
-          </button>
-        </div>
-      </form>
-    </div>
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={index}
+                className="bg-button text-white py-2 px-2 rounded-lg text-center w-fit grow"
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+
+          {/* Messages */}
+
+          <div
+            ref={chatBoxRef}
+            className="chat-box bg-ramd py-4 px-8 mb-4 rounded-3xl h-full overflow-y-auto text-base flex-wrap"
+          >
+
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${message.isServer ? 'justify-start' : 'justify-end'} mb-2`}
+              >
+                <div
+                  className={`p-2 max-w-[75%] bg-opacity-90 rounded-lg break-words ${message.isServer ? 'bg-white text-dark' : 'bg-purp text-white'}`}
+                >
+                  {message.text}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Input */}
+          <div className="flex items-center bg-white px-2 rounded-3xl shadow-inner  ">
+            <textarea
+              ref={textRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type a message"
+              onInput={(e) => {
+                e.target.style.height = 'auto'; // Reset height to calculate correctly
+                e.target.style.height = `${e.target.scrollHeight}px`; // Set height to scrollHeight
+              }}
+              className="flex-1 px-2 py-1 text-dark  focus:outline-none resize-none overflow-hidden rounded-3xl  "
+            />
+
+            <button
+              type="submit"
+              disabled={!input.trim() || loading}
+              className={`mx-1 rounded-3xl ml-2 transition-colors ${!input.trim() || loading ? 'opacity-70' : 'opacity-100'}`}
+            >
+              <img className={`size-12 p-1 ${loading ? "delay-200":null}`} src={loading ? wait : send1} alt="Send" />
+            </button>
+          </div>
+        </form>
+      </div>
+    </motion.div>
   );
 };
 

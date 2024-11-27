@@ -10,10 +10,14 @@ function App() {
     <>
     <Router>
     <Nav/>
+    
       <Routes>
         <Route path='/back' element= {<Back/>}/>
+        
         <Route path="/" index element={<Front/>}/>
+        
       </Routes>
+      
     </Router>
     </>
   )
