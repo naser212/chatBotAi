@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import send1 from './button.svg';
 import wait from "./sq.svg";
 
-const ChatInterface = () => {
+export default function ChatInterface()  {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [visible, setVisible] = useState(true);
@@ -34,7 +34,7 @@ const ChatInterface = () => {
       }
 
       const data = await response.json();
-      return data.response; // Assuming server returns { response: "Server reply" }
+      return data.response;
     } catch (error) {
       console.error("Error communicating with the server:", error);
       return "Oops! Something went wrong.";
@@ -59,19 +59,19 @@ const ChatInterface = () => {
     }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
     handleSend();
     setVisible(false);
   };
 
   // Handle Enter key press for submitting
   const handleKeyDown = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey && loading) {  // Block Enter key when loading
+    if (event.key === 'Enter' && !event.shiftKey && loading) {
       event.preventDefault();
     }
     if (event.key === 'Enter' && !event.shiftKey && !loading) {
-      event.preventDefault(); // Prevent default behavior of Enter key
+      event.preventDefault();
       handleSend();
     }
   };
@@ -92,7 +92,7 @@ const ChatInterface = () => {
       textRef.current.style.height = "auto";}
 
     }
-  }, [messages]); // Runs every time messages array changes
+  }, [messages]);
 
   return (
     <motion.div
@@ -134,23 +134,24 @@ const ChatInterface = () => {
           {/* Messages */}
 
           <div
-            ref={chatBoxRef}
-            className="chat-box bg-ramd py-4 px-8 mb-4 rounded-3xl h-full overflow-y-auto text-base flex-wrap"
-          >
-
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.isServer ? 'justify-start' : 'justify-end'} mb-2`}
-              >
-                <div
-                  className={`p-2 max-w-[75%] bg-opacity-90 rounded-lg break-words ${message.isServer ? 'bg-white text-dark' : 'bg-purp text-white'}`}
-                >
-                  {message.text}
-                </div>
-              </div>
-            ))}
-          </div>
+  ref={chatBoxRef}
+  className="chat-box bg-ramd py-4 px-8 mb-4 rounded-3xl h-full overflow-y-auto text-base flex-wrap"
+>
+  {messages.map((message, index) => (
+    <motion.div
+      key={index}
+      className={`flex ${message.isServer ? 'justify-start' : 'justify-end'} mb-2`}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <div
+        className={`p-2 max-w-[75%] bg-opacity-90 rounded-lg break-words ${message.isServer ? 'bg-white text-dark' : 'bg-purp text-white'}`}
+      >
+        {message.text}
+      </div>
+    </motion.div>
+  ))}
+</div>
 
           {/* Input */}
           <div className="flex items-center bg-white px-2 rounded-3xl shadow-inner  ">
@@ -182,4 +183,4 @@ const ChatInterface = () => {
   );
 };
 
-export default ChatInterface;
+

@@ -1,4 +1,5 @@
 import Front from './front';
+import ChatNew from './newBack';
 import './index.css';
 import Nav from './nav';
 import Back from './back';
@@ -12,13 +13,14 @@ function App() {
     <Nav/>
     
       <Routes>
-        <Route path='/back' element= {<Back/>}/>
+        <Route path='/back' element= {<ChatNew/>}/>
         
         <Route path="/" index element={<Front/>}/>
         
       </Routes>
       
     </Router>
+ 
     </>
   )
 }
