@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import io from 'socket.io-client'; // Import Socket.io client
+import io from 'socket.io-client'; 
 import send1 from './button.svg';
 import wait from "./sq.svg";
 
@@ -11,8 +11,7 @@ export default function ChatInterface() {
   const [connectionError, setConnectionError] = useState(false);
 
   const chatBoxRef = useRef(null);
-  const dummyRef = useRef(null); // New ref for dummy div
-  const textRef = useRef(null);
+  const dummyRef = useRef(null); 
   // Reference to the socket instance
   const socketRef = useRef();
 
@@ -30,11 +29,7 @@ export default function ChatInterface() {
       setLoading(false);
     });
 
-    // Handle typing indicators (optional)
-    socket.on('typing', (data) => {
-      const { message } = data;
-      setMessages((prevMessages) => [...prevMessages, { text: message, isServer: true, isTyping: true }]);
-    });
+
 
     // Handle connection errors
     socket.on('connect_error', (err) => {
@@ -68,7 +63,6 @@ export default function ChatInterface() {
 
   // Function to retrieve the current conversation context
   const getCurrentContext = () => {
-    // Concatenate all previous messages to form the context
     return messages
       .map((msg) => `${msg.isServer ? 'AI' : 'User'}: ${msg.text}`)
       .join('\n');
@@ -78,7 +72,7 @@ export default function ChatInterface() {
   const handleSubmit = (e) => {
     e.preventDefault();
     handleSend();
-    // Removed setVisible(false) as suggestions are no longer present
+    
   };
 
   // Handle Enter key press for submitting
@@ -86,7 +80,7 @@ export default function ChatInterface() {
     if (event.key === 'Enter' && !event.shiftKey && !loading) {
       event.preventDefault();
       handleSend();
-      // Removed setVisible(false) as suggestions are no longer present
+      
     }
   };
 
@@ -163,8 +157,8 @@ export default function ChatInterface() {
               onKeyDown={handleKeyDown}
               placeholder="Type a message"
               onInput={(e) => {
-                e.target.style.height = 'auto'; // Reset height to calculate correctly
-                e.target.style.height = `${e.target.scrollHeight}px`; // Set height to scrollHeight
+                e.target.style.height = 'auto'; // Reset height 
+                e.target.style.height = `${e.target.scrollHeight}px`; //  scrollHeight
               }}
               className="flex-1 px-2 py-1 text-dark focus:outline-none resize-none overflow-hidden rounded-3xl"
             />
@@ -175,7 +169,7 @@ export default function ChatInterface() {
               className={`mx-1 rounded-3xl ml-2 transition-colors ${!input.trim() || loading ? 'opacity-70 cursor-not-allowed' : 'opacity-100'}`}
             >
               <img
-                className="size-12 p-1" // Removed animate-spin
+                className="size-12 p-1"
                 src={loading ? wait : send1}
                 alt="Send"
               />
