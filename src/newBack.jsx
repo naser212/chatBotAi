@@ -172,9 +172,7 @@ export default function ChatInterface() {
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className={`mx-1 rounded-3xl ml-2 transition-colors ${
-                !input.trim() || loading ? 'opacity-70 cursor-not-allowed' : 'opacity-100'
-              }`}
+              className={`mx-1 rounded-3xl ml-2 transition-colors ${!input.trim() || loading ? 'opacity-70 cursor-not-allowed' : 'opacity-100'}`}
             >
               <img
                 className="size-12 p-1" // Removed animate-spin
